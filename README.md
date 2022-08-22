@@ -29,7 +29,7 @@ pod 'Farly'
 
 ## Author
 
-Farly, farly.io
+Farly, [farly.io](https://www.farly.io)
 
 ## License
 
