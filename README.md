@@ -34,6 +34,8 @@ it, simply add the following line to your Podfile:
 pod 'Farly'
 ```
 
+Cocoapod integration example available [in this repo >](https://github.com/farly-sdk/farly-ios-pod-example)
+
 ## Author
 
 Farly, [farly.io](https://www.farly.io)
