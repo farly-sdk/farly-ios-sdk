@@ -16,7 +16,14 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ### Swift package manager
 
-//TODO:
+Add Farly using the swift Package Manager, using the repository url :
+- In Xcode, select File > Add Packages
+- Copy and paste the following in the search/input box
+```
+https://github.com/farly-sdk/farly-ios-sdk
+```
+
+SPM integration example available [in this repo >](https://github.com/farly-sdk/farly-ios-spm-example)
 
 ### Cocoapods
 
