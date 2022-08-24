@@ -19,7 +19,7 @@ import FoundationNetworking
 
 enum Endpoint: String {
     case apiFeedV2 = "/api/feed/v2"
-    case hostedWall = "/wall"
+    case hostedWall = "/offers"
 }
 
 @objc
@@ -58,8 +58,10 @@ public class Farly: NSObject {
     @objc public static let shared = Farly()
     
     @objc public var apiKey: String?
-    @objc public var apiDomain: String = "www.mob4pass.com"
     @objc public var publisherId: String?
+    
+    @objc public var apiDomain: String = "www.mob4pass.com"
+    @objc public var offerwallDomain: String = "offerwall.farly.io"
     
     private override init() {}
     
@@ -69,7 +71,7 @@ public class Farly: NSObject {
             throw MessageError.error(message: error)
         }
         
-        var url = URLComponents(string: "https://\(self.apiDomain)\(endpoint.rawValue)")!
+        var url = URLComponents(string: "https://\(endpoint == .hostedWall ? self.offerwallDomain : self.apiDomain)\(endpoint.rawValue)")!
         
         let cleanNumberFormatter = NumberFormatter()
         cleanNumberFormatter.allowsFloats = false
@@ -169,11 +171,28 @@ public class Farly: NSObject {
                 }
                 
                 let webView = WKWebView()
-                webView.load(URLRequest(url: url))
-                
+                webView.translatesAutoresizingMaskIntoConstraints = false
+
                 let vc = UIViewController()
-                vc.view = webView
-                
+                vc.view.addSubview(webView)
+                vc.view.backgroundColor = UIColor.white
+
+                NSLayoutConstraint.activate([
+                    webView.topAnchor.constraint(equalTo: vc.view.topAnchor),
+                    webView.leadingAnchor.constraint(equalTo: vc.view.leadingAnchor),
+                    webView.trailingAnchor.constraint(equalTo: vc.view.trailingAnchor)
+                ])
+                if #available(iOS 11.0, *) {
+                    let guide = vc.view.safeAreaLayoutGuide
+                    NSLayoutConstraint.activate([
+                        webView.bottomAnchor.constraint(equalTo: guide.bottomAnchor)
+                    ])
+                } else {
+                    NSLayoutConstraint.activate([
+                        vc.bottomLayoutGuide.topAnchor.constraint(equalTo: webView.bottomAnchor)
+                    ])
+                }
+                                
                 let navVC = UINavigationController(rootViewController: vc)
                 
                 vc.navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -184,6 +203,8 @@ public class Farly: NSObject {
                 
                 self.presentedNavigationViewController = navVC
                 
+                webView.load(URLRequest(url: url))
+
                 viewController.present(navVC, animated: true, completion: nil)
                 break
             }
