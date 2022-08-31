@@ -148,14 +148,64 @@ public class Farly: NSObject {
     
     private var presentedNavigationViewController: UINavigationController?
     
+    private func showOfferwallInWebview(request: OfferWallRequest) {
+        do {
+            let url = try getParameterizedUrl(request: request, endpoint: .hostedWall)
+            
+            guard let viewController = UIApplication.shared.windows.first?.rootViewController else {
+                throw MessageError.error(message: "No root view controller found")
+            }
+            
+            let webView = WKWebView()
+            webView.translatesAutoresizingMaskIntoConstraints = false
+            
+            let vc = UIViewController()
+            vc.view.addSubview(webView)
+            vc.view.backgroundColor = UIColor.white
+            
+            NSLayoutConstraint.activate([
+                webView.topAnchor.constraint(equalTo: vc.view.topAnchor),
+                webView.leadingAnchor.constraint(equalTo: vc.view.leadingAnchor),
+                webView.trailingAnchor.constraint(equalTo: vc.view.trailingAnchor)
+            ])
+            if #available(iOS 11.0, *) {
+                let guide = vc.view.safeAreaLayoutGuide
+                NSLayoutConstraint.activate([
+                    webView.bottomAnchor.constraint(equalTo: guide.bottomAnchor)
+                ])
+            } else {
+                NSLayoutConstraint.activate([
+                    vc.bottomLayoutGuide.topAnchor.constraint(equalTo: webView.bottomAnchor)
+                ])
+            }
+            
+            let navVC = UINavigationController(rootViewController: vc)
+            
+            vc.navigationItem.rightBarButtonItem = UIBarButtonItem(
+                barButtonSystemItem: .done,
+                target: self,
+                action: #selector(dismissPresentedViewController)
+            )
+            
+            self.presentedNavigationViewController = navVC
+            
+            webView.load(URLRequest(url: url))
+            
+            viewController.present(navVC, animated: true, completion: nil)
+        } catch MessageError.error(let message) {
+            print("Error: \(message)")
+        } catch let e {
+            print("Error: \(e)")
+        }
+    }
+    
     /// Show the hosted Offerwall in webview or in browser
     @objc
     public func showOfferwall(request: OfferWallRequest, mode: HostedOfferwallPresentationMode) {
         do {
-            let url = try getParameterizedUrl(request: request, endpoint: .hostedWall)
-            
             switch mode {
             case .browser:
+                let url = try getParameterizedUrl(request: request, endpoint: .hostedWall)
                 if !UIApplication.shared.canOpenURL(url){
                     throw MessageError.error(message: "Cannot open url")
                 }
@@ -166,46 +216,9 @@ public class Farly: NSObject {
                 }
                 break
             case .webView:
-                guard let viewController = UIApplication.shared.windows.first?.rootViewController else {
-                    throw MessageError.error(message: "No root view controller found")
+                DispatchQueue.main.async {
+                    self.showOfferwallInWebview(request: request)
                 }
-                
-                let webView = WKWebView()
-                webView.translatesAutoresizingMaskIntoConstraints = false
-
-                let vc = UIViewController()
-                vc.view.addSubview(webView)
-                vc.view.backgroundColor = UIColor.white
-
-                NSLayoutConstraint.activate([
-                    webView.topAnchor.constraint(equalTo: vc.view.topAnchor),
-                    webView.leadingAnchor.constraint(equalTo: vc.view.leadingAnchor),
-                    webView.trailingAnchor.constraint(equalTo: vc.view.trailingAnchor)
-                ])
-                if #available(iOS 11.0, *) {
-                    let guide = vc.view.safeAreaLayoutGuide
-                    NSLayoutConstraint.activate([
-                        webView.bottomAnchor.constraint(equalTo: guide.bottomAnchor)
-                    ])
-                } else {
-                    NSLayoutConstraint.activate([
-                        vc.bottomLayoutGuide.topAnchor.constraint(equalTo: webView.bottomAnchor)
-                    ])
-                }
-                                
-                let navVC = UINavigationController(rootViewController: vc)
-                
-                vc.navigationItem.rightBarButtonItem = UIBarButtonItem(
-                    barButtonSystemItem: .done,
-                    target: self,
-                    action: #selector(dismissPresentedViewController)
-                )
-                
-                self.presentedNavigationViewController = navVC
-                
-                webView.load(URLRequest(url: url))
-
-                viewController.present(navVC, animated: true, completion: nil)
                 break
             }
         } catch MessageError.error(let message) {
