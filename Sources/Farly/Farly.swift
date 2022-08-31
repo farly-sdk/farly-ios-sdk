@@ -12,11 +12,6 @@ import FoundationNetworking
     case Unknown
 }
 
-@objc public enum HostedOfferwallPresentationMode: Int {
-    case webView
-    case browser
-}
-
 enum Endpoint: String {
     case apiFeedV2 = "/api/feed/v2"
     case hostedWall = "/offers"
@@ -148,11 +143,28 @@ public class Farly: NSObject {
     
     private var presentedNavigationViewController: UINavigationController?
     
-    private func showOfferwallInWebview(request: OfferWallRequest) {
+    /**
+     Show the hosted Offerwall in a webview (inside the app).
+     - Parameter request: use this to personalize the results for your user
+     - Parameter presentingViewController: you can pass your own presentingViewController. If not provided, the SDK tries to use the rootViewController of the app
+     - Parameter completion: gets called once the webview is presented, or if an error occurs
+     */
+    @objc
+    public func showOfferwallInWebview(request: OfferWallRequest, presentingViewController: UIViewController? = nil, completion: ((_ error: Error?) -> ())? = nil) {
+        if !Thread.isMainThread {
+            DispatchQueue.main.async {
+                self.showOfferwallInWebview(
+                    request: request,
+                    presentingViewController: presentingViewController,
+                    completion: completion
+                )
+            }
+            return
+        }
         do {
             let url = try getParameterizedUrl(request: request, endpoint: .hostedWall)
             
-            guard let viewController = UIApplication.shared.windows.first?.rootViewController else {
+            guard let viewController = presentingViewController ?? UIApplication.shared.windows.first?.rootViewController else {
                 throw MessageError.error(message: "No root view controller found")
             }
             
@@ -190,43 +202,44 @@ public class Farly: NSObject {
             self.presentedNavigationViewController = navVC
             
             webView.load(URLRequest(url: url))
-            
-            viewController.present(navVC, animated: true, completion: nil)
-        } catch MessageError.error(let message) {
-            print("Error: \(message)")
+            viewController.present(navVC, animated: true) {
+                completion?(nil)
+            }
         } catch let e {
             print("Error: \(e)")
+            completion?(e)
+            return
         }
     }
     
-    /// Show the hosted Offerwall in webview or in browser
+    /**
+     Show the hosted Offerwall in the browser (outside the app).
+     - Parameter request: use this to personalize the results for your user
+     - Parameter completion: gets called once the url is opened, or if an error occurs
+     */
     @objc
-    public func showOfferwall(request: OfferWallRequest, mode: HostedOfferwallPresentationMode) {
+    public func showOfferwallInBrowser(request: OfferWallRequest, completion: ((_ error: Error?) -> ())? = nil) {
         do {
-            switch mode {
-            case .browser:
-                let url = try getParameterizedUrl(request: request, endpoint: .hostedWall)
-                if !UIApplication.shared.canOpenURL(url){
-                    throw MessageError.error(message: "Cannot open url")
-                }
-                if #available(iOS 10.0, *) {
-                    UIApplication.shared.open(url)
-                } else {
-                    UIApplication.shared.openURL(url)
-                }
-                break
-            case .webView:
-                DispatchQueue.main.async {
-                    self.showOfferwallInWebview(request: request)
-                }
-                break
+            let url = try getParameterizedUrl(request: request, endpoint: .hostedWall)
+            if !UIApplication.shared.canOpenURL(url){
+                throw MessageError.error(message: "Cannot open url")
             }
-        } catch MessageError.error(let message) {
-            print("Error: \(message)")
+            if #available(iOS 10.0, *) {
+                UIApplication.shared.open(url, options: [:]) { success in
+                    if success {
+                        completion?(nil)
+                    } else {
+                        completion?(MessageError.error(message: "UIApplication.shared.open failed to open url"))
+                    }
+                }
+            } else {
+                UIApplication.shared.openURL(url)
+                completion?(nil)
+            }
         } catch let e {
             print("Error: \(e)")
+            completion?(e)
         }
-        return
     }
     
     @objc
