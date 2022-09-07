@@ -90,7 +90,8 @@ public class Farly: NSObject {
             "country": locale.regionCode,
             "locale": locale.identifier.starts(with: "fr") ? "fr" : "en",
             "zip": request.zipCode,
-            "carrier": OfferWallParametersUtils.getCarrierCode()
+            "carrier": OfferWallParametersUtils.getCarrierCode(),
+            "from": "wallv2"
         ]
         
         if request.userGender == .Male {
