@@ -6,7 +6,7 @@
 
 ## Full Documentation
 
-[Access the full documentation here >](https://mobsuccess.notion.site/Skyly-iOS-SDK-d4c1ff68a3584b0e9fb5bb8a77597f10)
+[Access the full documentation here >](https://mobsuccess.notion.site/Farly-iOS-SDK-d4c1ff68a3584b0e9fb5bb8a77597f10)
 
 ## Example
 

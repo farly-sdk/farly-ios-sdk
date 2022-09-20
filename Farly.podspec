@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.swift_versions   = '5.5.2'
 
   s.description      = <<-DESC
-Farly SDK for iOs, as a Pod. Full documentation at https://mobsuccess.notion.site/Skyly-iOS-SDK-d4c1ff68a3584b0e9fb5bb8a77597f10.
+Farly SDK for iOS, as a Pod. Full documentation at https://mobsuccess.notion.site/Farly-iOS-SDK-d4c1ff68a3584b0e9fb5bb8a77597f10
                        DESC
 
   s.homepage         = 'https://github.com/farly-sdk/farly-ios-sdk'
