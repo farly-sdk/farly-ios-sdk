@@ -55,7 +55,7 @@ public class Farly: NSObject {
     @objc public var apiKey: String?
     @objc public var publisherId: String?
     
-    @objc public var apiDomain: String = "www.mob4pass.com"
+    @objc public var apiDomain: String = "www.farly.io"
     @objc public var offerwallDomain: String = "offerwall.farly.io"
     
     private override init() {}
