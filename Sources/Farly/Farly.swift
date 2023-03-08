@@ -126,6 +126,8 @@ public class Farly: NSObject {
         }
         url.queryItems = items
         
+        print("## FARLY -  Offerwall URL : \(url.url!)")
+        
         return url.url!
     }
     
@@ -135,9 +137,9 @@ public class Farly: NSObject {
         do {
             return try getParameterizedUrl(request: request, endpoint: .hostedWall)
         } catch MessageError.error(let message) {
-            print("Error: \(message)")
+            print("## FARLY - Error: \(message)")
         } catch let e {
-            print("Error: \(e)")
+            print("## FARLY - Error: \(e)")
         }
         return nil
     }
@@ -207,7 +209,7 @@ public class Farly: NSObject {
                 completion?(nil)
             }
         } catch let e {
-            print("Error: \(e)")
+            print("## FARLY - Error: \(e)")
             completion?(e)
             return
         }
@@ -238,7 +240,7 @@ public class Farly: NSObject {
                 completion?(nil)
             }
         } catch let e {
-            print("Error: \(e)")
+            print("## FARLY - Error: \(e)")
             completion?(e)
         }
     }
@@ -259,7 +261,7 @@ public class Farly: NSObject {
             
 #if DEBUG
             print("###################")
-            print("Calling Offerwall : \(url)")
+            print("## FARLY - Calling Offerwall : \(url)")
             print("###################")
 #endif
             
@@ -268,7 +270,7 @@ public class Farly: NSObject {
             
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 guard let data = data else {
-                    print("ERROR" + String(describing: error))
+                    print("## FARLY - ERROR" + String(describing: error))
                     completion(String(describing: error), nil)
                     return
                 }
@@ -284,10 +286,10 @@ public class Farly: NSObject {
             
             task.resume()
         } catch MessageError.error(let message) {
-            print("Error: \(message)")
+            print("## FARLY - Error: \(message)")
             completion(message, nil)
         } catch let e {
-            print("Error: \(e)")
+            print("## FARLY - Error: \(e)")
             completion("An unknown error ocured", nil)
         }
     }
