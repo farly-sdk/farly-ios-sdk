@@ -25,6 +25,9 @@ public class OfferWallRequest: NSObject {
     /// Current zipCode of the user, should be fetched from geolocation, not from geoip
     @objc public var zipCode: String?
     
+    /// Current 2 letters country code of the user, if not provided will default to the user's preferred region
+    @objc public var countryCode: String?
+    
     /// Your user's age
     @objc public var userAge: NSNumber?
     
@@ -77,6 +80,13 @@ public class Farly: NSObject {
         }
         
         let locale = OfferWallParametersUtils.getLocale()
+        let country = request.countryCode ?? OfferWallParametersUtils.getCountryCode()
+        
+        if country == nil {
+            print("###################")
+            print("## FARLY - Country could not be found in the devices preferred region, please pass it in the request country parameter")
+            print("###################")
+        }
         
         var params: [String : String?] = [
             "pubid" : publisherId,
@@ -87,7 +97,7 @@ public class Farly: NSObject {
             "devicemodel": OfferWallParametersUtils.getDeviceModelCode(),
             "os_version": UIDevice.current.systemVersion,
             "is_tablet": OfferWallParametersUtils.getCurrentDevice() == .iPad ? "1" : "0",
-            "country": locale.regionCode,
+            "country": country,
             "locale": locale.identifier.starts(with: "fr") ? "fr" : "en",
             "zip": request.zipCode,
             "carrier": OfferWallParametersUtils.getCarrierCode(),

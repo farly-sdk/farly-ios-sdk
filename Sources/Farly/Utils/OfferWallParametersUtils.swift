@@ -57,6 +57,15 @@ class OfferWallParametersUtils {
         return Locale.current
     }
     
+    static func getCountryCode() -> String? {
+        for pref in Locale.preferredLanguages {
+            if let countryCode = Locale(identifier: pref).regionCode {
+                return countryCode
+            }
+        }
+        return Locale.current.regionCode
+    }
+    
     static func getCarrierCode() -> String? {
         let networkInfo = CTTelephonyNetworkInfo()
         if #available(iOS 12.0, *) {
