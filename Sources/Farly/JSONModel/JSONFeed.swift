@@ -19,9 +19,9 @@ public class FeedElement: NSObject, Codable {
 // MARK: - Action
 @objc
 public class Action: NSObject, Codable {
-    @objc let id: String
-    @objc let amount: Double
-    @objc let text, html: String
+    @objc public let id: String
+    @objc public let amount: Double
+    @objc public let text, html: String
 }
 
 typealias Feed = [FeedElement]
