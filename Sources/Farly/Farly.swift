@@ -55,7 +55,6 @@ public class Farly: NSObject {
     
     @objc public static let shared = Farly()
     
-    @objc public var apiKey: String?
     @objc public var publisherId: String?
     
     @objc public var apiDomain: String = "www.farly.io"
@@ -64,8 +63,8 @@ public class Farly: NSObject {
     private override init() {}
     
     func getParameterizedUrl(request: OfferWallRequest, endpoint: Endpoint) throws -> URL {
-        guard let publisherId = self.publisherId, let apiKey = self.apiKey else {
-            let error = "🛑 Farly needs to be configured with an apiKey and publisherId before being called"
+        guard let publisherId = self.publisherId else {
+            let error = "🛑 Farly needs to be configured with a publisherId before being called"
             throw MessageError.error(message: error)
         }
         
@@ -74,17 +73,10 @@ public class Farly: NSObject {
         let cleanNumberFormatter = NumberFormatter()
         cleanNumberFormatter.allowsFloats = false
         
-        let timestamp = cleanNumberFormatter.string(from: Date().timeIntervalSince1970 as NSNumber)!
-        guard let hash = "\(timestamp)\(apiKey)".data(using: .utf8)?.sha1 else {
-            throw MessageError.error(message: "FATAL: Unable to compute hash")
-        }
-        
         let locale = OfferWallParametersUtils.getLocale()
         
         var params: [String : String?] = [
             "pubid" : publisherId,
-            "timestamp" : timestamp,
-            "hash" : hash,
             "userid" : request.userId,
             "device" : OfferWallParametersUtils.getCurrentDevice().rawValue,
             "devicemodel": OfferWallParametersUtils.getDeviceModelCode(),
